@@ -4,6 +4,7 @@ import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.repository.AnswerRepository;
 import com.mysite.sbb.repository.QuestionRepository;
+import com.mysite.sbb.service.QuestionService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,58 +20,15 @@ import java.util.Optional;
 class SbbApplicationTests {
 
 	@Autowired
-	QuestionRepository questionRepository;
-
-	@Autowired
-	AnswerRepository answerRepository;
-
-	@Autowired
-	EntityManager em;
+	QuestionService questionService;
 
 	@Test
-	@Transactional
-	@Rollback(value = false)
-	void test() {
-		Question q1 = new Question();
-		q1.setSubject("이건희는 누구인가요?");
-		q1.setContent("이건희에 대해서 알고 싶은디.");
-		q1.setCreateDate(LocalDateTime.now());
-		this.questionRepository.save(q1);  // 첫번째 질문 저장
-
-		Question q2 = new Question();
-		q2.setSubject("오늘 밥 뭐 먹을까요?");
-		q2.setContent("제가 입이 고급집니다 참고좀.");
-		q2.setCreateDate(LocalDateTime.now());
-		this.questionRepository.save(q2);  // 두번째 질문 저장
-
-		Optional<Question> findQ = questionRepository.findById(1L);
-		Question q = findQ.get();
-
-		q.setSubject("수정된 제목 입니다!"); // 수정
-		questionRepository.save(q);
-		questionRepository.delete(q); // 삭제
-
-		Optional<Question> oq = questionRepository.findById(2L);
-		Question q3 = oq.get();
-		Answer a = new Answer();
-		a.setContent("궁금하면 500원");
-		a.setCreateDate(LocalDateTime.now());
-		a.setQuestion(q3);
-		answerRepository.save(a);
-		questionRepository.save(q2);  // 두번째 질문 저장
-
-		em.flush();
-		em.clear();
-
-		Optional<Question> byId = questionRepository.findById(2L);
-		Question questiontmp = byId.get();
-		String subject = questiontmp.getSubject();
-		System.out.println("subject = " + subject);
-		int size = questiontmp.getAnswerList().size();
-		System.out.println("size = " + size);
-		System.out.println(questiontmp.getAnswerList().get(0).getContent()); // 컬렉션 조회
-
-
+	void testJPA() {
+		for (int i = 1 ; i<=300 ; i++){
+			String subject = String.format("테스트 데이터입니다:[%03d]", i);
+			String content = "내용무";
+			questionService.create(subject,content);
+		}
 	}
 
 }
